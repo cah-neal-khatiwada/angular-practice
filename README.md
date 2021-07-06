@@ -26,8 +26,6 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
-Angular Notes: 
-
 Basic Features:
 
 Support for Progressive Web Apps
@@ -135,7 +133,7 @@ Pipes - Transform bound properties before display
 	Can be used in property bindings as well 
 	Some pipes support parameters which can be added using colon
 	Ex ({{product.price | currency:’USD’:’symbol’:’1.2-2’}})
-	Custom pipes can be created using @Pipe decorator - name is what we will be referencing in the html when using pipe
+	Custom pipes can be created using @Pipe decorator - name is what we will be referencing in the 		html when using pipe
 
 
 Interface 
@@ -150,3 +148,144 @@ Component Lifecycles:
 
 @Input() - pass data from parent to child
 @Output() - pass data from child to parent (it has to be an emitted event). EventEmitter defines event. Accepted by the parent as an event in template
+
+
+Dependency Injection
+Angular injector manages dependency injection. All injected services are singletons (shared instance). Any data or logic is shared by all classes that use it. 
+
+Dependencies can be injected into the class using constructor parameter. 
+
+Services:
+- Use Injectable decorator
+- Registration:
+    1. Root Injector - Service is available throughout the application (recommended for most scenarios). Use providedIn property in Injectable decorator and set the value to ‘root’
+    2. Component Injector - Service is available ONLY to that component and it’s child components. It isolates a service used by only one component. Provides multiple instances of the service for multiple components. Use providers property in the component decorator to register for component injection. 
+
+
+Reactive Extensions and Observables:
+RxJS - library for composing data using observable sequences and transforming that data using operators (similar to LINQ). Angular uses Reactive Extensions for working with data (especially async data).
+- Http requests are async
+- Async notifications are handled by RxJS observable sequences 
+- Observable - Collection of items over time. It does not retain items. Items can be observed over time.  Observable is lazy. Observable doesn’t do anything until subscribed. When subscribed, observable starts emitting notifications. 
+    1. next - Next item is emitted. Observable provides the item. 
+    2. error - An error occurred and no more items are emitted.
+    3. complete - No more items are emitted
+- When using http get observable returns a single next notification with an array of the response data
+- Pipeline can be setup for map, filter, transform when observable receives an item
+- Stop the observable with unsubscribing 
+- Add $ suffix to variables that hold observables 
+
+
+Handling HTTP response errors:
+Tap - taps into the observable stream and allows us to look at the emitted values in the stream without transforming the stream
+catchError - catches any errors
+We can use both of these as parameters to the pipe method in the observable class. 
+
+
+Navigation and Routing:
+
+Routing: 
+1. Configure a route for each component
+2. Define options/actions
+3. Tie a route to each option/action
+4. Activate the route based on user action
+5. Activating a route displays the component’s view
+
+Angular application has one router managed by Angular’s router service. Import RouterModule to register the router service and declare the router directives. 
+
+Configuring Routes: 
+Pass routes to RouterModule using RouterModule.forRoot and pass an array of routes. Each item in the array specifies a route object. Each route object has a path property. You can also define additional properties like redirectTo and pathMatch. 
+Ex. {path: ‘products’, component: ProductListComponent}. The path is appended to app url when called allowing bookmark. 
+
+You can also add path parameters by using :
+	Ex. products/:id - You can add multiple parameters by /
+
+More specific routes should be on the top of the array.
+
+You can use routerLink directive to route to a specific component.
+	Ex. routerLink="['/welcome’]”. When passing parameters to the route you can add it as a second 		parameter to the array. Ex. [routerLink]=“[‘products’, product.productId]”
+	If it only contains path, shortcut syntax can be used [routerLink]=“/welcome”
+
+Once routerLink directive has been added you need to specify where to display the component after it routes. That can be done using router-outlet directive. All routing specifications have been done in the app-component currently. 
+￼
+
+To get a parameter from the route you can use ActivatedRoute service. Inject it to the component constructor.
+1. If the component only needs to access the parameter once, you can use ActivatedRoute.snapshot.paramMap.get(‘parameter’);
+2. If the component needs to read parameters as they change, you can use paramMap observable in ActivatedRoute
+
+
+Using code to route:
+
+Use Router, another service provided by the router. 
+You can use the navigate method.
+￼
+
+Protecting Routes with Guards:
+1. Limit access to a route
+2. Restrict access to only certain users
+3. Require confirmation before navigating away
+
+Angular Router provides several guard methods: (These are all interfaces that need to be implemented to a service)
+1. canActivate - Guard navigation to a route
+2. canDeactivate - Guard navigation from a route
+3. Resolve - Pre-fetch data before activating a route
+4. canLoad - Prevent async routing
+
+Once you implement a guard, you can add it to the RouterModule.forRoot array within the component properties. 
+￼
+
+Angular Module:
+1. Class with NgModule decorator
+2. It’s purpose:
+    1. Organize the pieces of application
+    2. Arrange them into blocks
+    3. Extend application with capabilities from external libraries
+    4. Provide a template resolution environment
+    5. Aggregate and reexport
+
+Bootstrap Array:
+1. Every app must bootstrap at least one component, the root application component
+2. Only be used in the root application module, AppModule
+
+Declarations Array: 
+1. Every component, directive and pipe we create must belong to one and only one Angular Module
+2. Only declare components, directives and pipes
+3. All declared components, directives and pipes are private by default (they are only accessible to components, directive, pipes in the same module)
+4. Angular module provides the template resolution environment for it’s component templates
+
+
+Exports array:
+1. Allows sharing of component, directives and pipes to other modules
+2. Export any component, directive, or pipe if other components need it 
+3. Re-export modules to re-export their component, directives and pipes
+4. We can export something without including it in the imports array
+
+Imports Array:
+1. Adding a module to the imports array makes available any components, directives, and pipes defined in that module’s exports array
+2. Only import what this module needs
+3. Importing a module does NOT provide access to it’s imported modules
+4. Use the imports array to register services provided by Angular or third-party modules
+
+Providers Array
+1. Register services with the root application Injector. Recommended way is to use provided in parameter in @Injectable decorator set to ‘root’
+
+To separate responsibility and maintain scalability feature sets should be created. Each feature set will have it’s own module which will be imported by the app module
+
+
+Shared module can be defined to organize commonly used pieces of our application. Export those pieces to share them. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

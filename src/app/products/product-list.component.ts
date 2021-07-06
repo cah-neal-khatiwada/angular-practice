@@ -1,5 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
 import { IProduct } from "./product";
+import { ProductService } from "./product.service";
 
 @Component({
   selector: 'pm-products',
@@ -7,16 +9,31 @@ import { IProduct } from "./product";
   styleUrls: ['./product-list.component.scss']
 })
 
-export class ProductList implements OnInit{
+export class ProductList implements OnInit, OnDestroy{
+
+  constructor(private productService: ProductService) {
+  }
 
   ngOnInit(): void {
-    this.listFilter = 'cart';
+    this.sub = this.productService.getProducts().subscribe({
+      next: x => {
+        this.products = x;
+        this.filteredProducts = this.products;
+      },
+      error: x => this.errorMessage = x
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 
   pageTitle: string = 'Product List';
   imageWidth: number = 50;
   imageMargin: number = 2;
   showImage: boolean = false;
+  sub!: Subscription;
 
   private _listFilter: string = '';
 
@@ -30,29 +47,8 @@ export class ProductList implements OnInit{
   }
 
   filteredProducts: IProduct[] = [];
-
-  products: IProduct[] = [
-    {
-      "productId": 2,
-      "productName": "Garden Cart",
-      "productCode": "GDN-0023",
-      "releaseDate": "March 18, 2021",
-      "description": "15 gallon capacity rolling garden cart",
-      "price": 32.99,
-      "starRating": 4.2,
-      "imageUrl": "assets/images/garden_cart.png"
-    },
-    {
-      "productId": 5,
-      "productName": "Hammer",
-      "productCode": "TBX-0048",
-      "releaseDate": "May 21, 2021",
-      "description": "Curved claw steel hammer",
-      "price": 8.9,
-      "starRating": 4.8,
-      "imageUrl": "assets/images/hammer.png"
-    }
-  ]
+  products: IProduct[] = [];
+  errorMessage: string = '';
 
   toggleImage(): void {
     this.showImage = !this.showImage;
